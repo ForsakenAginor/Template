@@ -3,6 +3,7 @@ using General.UI;
 using Lean.Localization;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 public class MainMenuRoot : MonoBehaviour
 {
@@ -17,16 +18,27 @@ public class MainMenuRoot : MonoBehaviour
     [SerializeField] private Button _toRussian;
     [SerializeField] private Button _toTurkish;
 
+    [Header("Other")]
+    private ISceneChanger _sceneChanger;
+    private IMusicSource _musicSource;
+
+    [Inject]
+    public void Construct(ISceneChanger sceneChanger, IMusicSource musicSource)
+    {
+        _sceneChanger = sceneChanger;
+        _musicSource = musicSource;
+    }
+
     private void Start()
     {
         _soundInitializer.Init();
 
-        if (MusicSingleton.Instance.IsAdded == false)
-            _soundInitializer.AddMusicSource(MusicSingleton.Instance.Music);
+        if (_musicSource.IsAdded == false)
+            _soundInitializer.AddMusicSource(_musicSource.Music);
         else
-            _soundInitializer.AddMusicSourceWithoutVolumeChanging(MusicSingleton.Instance.Music);
+            _soundInitializer.AddMusicSourceWithoutVolumeChanging(_musicSource.Music);
 
-        SceneChangerSingleton.Instance.FadeOut();
+        _sceneChanger.FadeOut();
 
         _toEnglish.onClick.AddListener(ChangeLanguageToEnglish);
         _toRussian.onClick.AddListener(ChangeLanguageToRussian);
@@ -46,7 +58,7 @@ public class MainMenuRoot : MonoBehaviour
 
     private void OnPlayButtonClick()
     {
-        SceneChangerSingleton.Instance.LoadScene(Scenes.Game.ToString());
+        _sceneChanger.LoadScene(Scenes.Game.ToString());
     }
 
     private void ChangeLanguageToRussian()
