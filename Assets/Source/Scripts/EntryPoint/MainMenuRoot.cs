@@ -1,84 +1,93 @@
-using AudioMixer;
-using General.UI;
-using Lean.Localization;
+using Assets.Source.Scripts.AudioLogic;
+using Assets.Source.Scripts.DI.Services.Boot;
+using Assets.Source.Scripts.General;
+using Assets.Source.Scripts.Localization;
+using Assets.Source.Scripts.SaveSystem;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
 
-public class MainMenuRoot : MonoBehaviour
+namespace Assets.Source.Scripts.EntryPoint
 {
-    [SerializeField] private Button _playButton;
-    [SerializeField] private SoundInitializer _soundInitializer;
-
-    [Header("Localization")]
-    private readonly string _russian = "Russian";
-    private readonly string _english = "English";
-    private readonly string _turkish = "Turkish";
-    [SerializeField] private Button _toEnglish;
-    [SerializeField] private Button _toRussian;
-    [SerializeField] private Button _toTurkish;
-
-    [Header("Other")]
-    private ISceneChanger _sceneChanger;
-    private IMusicSource _musicSource;
-
-    [Inject]
-    public void Construct(ISceneChanger sceneChanger, IMusicSource musicSource)
+    public class MainMenuRoot : MonoBehaviour
     {
-        _sceneChanger = sceneChanger;
-        _musicSource = musicSource;
-    }
+        [SerializeField] private Button _playButton;
+        [SerializeField] private AudioSaveLoadService _soundInitializer;
 
-    private void Start()
-    {
-        _soundInitializer.Init();
+        [Header("Localization")]
+        [SerializeField] private Button _toEnglish;
+        [SerializeField] private Button _toRussian;
+        private LanguageChanger _languageChanger;
 
-        if (_musicSource.IsAdded == false)
-            _soundInitializer.AddMusicSource(_musicSource.Music);
-        else
-            _soundInitializer.AddMusicSourceWithoutVolumeChanging(_musicSource.Music);
+        [Header("Other")]
+        private ISceneChanger _sceneChanger;
+        private SaveDataProvider _saveDataProvider;
+        private List<IDataSaveLoadService> _saveLoadServices = new();
 
-        _sceneChanger.FadeOut();
+        [Inject]
+        public void Construct(ISceneChanger sceneChanger, SaveDataProvider saveDataProvider)
+        {
+            _sceneChanger = sceneChanger;
+            _saveDataProvider = saveDataProvider;
 
-        _toEnglish.onClick.AddListener(ChangeLanguageToEnglish);
-        _toRussian.onClick.AddListener(ChangeLanguageToRussian);
-        _toTurkish.onClick.AddListener(ChangeLanguageToTurkish);
+            _saveLoadServices.Add(_soundInitializer);
+        }
 
-        _playButton.onClick.AddListener(OnPlayButtonClick);
-    }
+        private void Start()
+        {
+            _languageChanger = new(_saveDataProvider.PlayerSavedData);
 
-    private void OnDestroy()
-    {
-        _toEnglish.onClick.RemoveListener(ChangeLanguageToEnglish);
-        _toRussian.onClick.RemoveListener(ChangeLanguageToRussian);
-        _toTurkish.onClick.RemoveListener(ChangeLanguageToTurkish);
+            LoadData();
 
-        _playButton.onClick.RemoveListener(OnPlayButtonClick);
-    }
+            _toEnglish.onClick.AddListener(ChangeLanguageToEnglish);
+            _toRussian.onClick.AddListener(ChangeLanguageToRussian);
+            _playButton.onClick.AddListener(OnPlayButtonClick);
 
-    private void OnPlayButtonClick()
-    {
-        _sceneChanger.LoadScene(Scenes.Game.ToString());
-    }
+            _sceneChanger.FadeOut();
+            Time.timeScale = 1f;
+        }
 
-    private void ChangeLanguageToRussian()
-    {
-        SetLanguage(_russian);
-    }
+        private void OnDestroy()
+        {
+            _toEnglish.onClick.RemoveListener(ChangeLanguageToEnglish);
+            _toRussian.onClick.RemoveListener(ChangeLanguageToRussian);
 
-    private void ChangeLanguageToTurkish()
-    {
-        SetLanguage(_turkish);
-    }
+            _playButton.onClick.RemoveListener(OnPlayButtonClick);
+        }
 
-    private void ChangeLanguageToEnglish()
-    {
-        SetLanguage(_english);
-    }
+        private void LoadData()
+        {
+            foreach (var service in _saveLoadServices)
+            {
+                service.Init(_saveDataProvider.PlayerSavedData);
+            }
 
-    private void SetLanguage(string language)
-    {
-        LeanLocalization.SetCurrentLanguageAll(language);
-        LeanLocalization.UpdateTranslations();
+            foreach (var service in _saveLoadServices)
+            {
+                service.Load();
+            }
+        }
+
+        private void OnPlayButtonClick()
+        {
+            foreach (var service in _saveLoadServices)
+            {
+                service.Save();
+            }
+
+            _saveDataProvider.Save();
+            _sceneChanger.LoadScene(Scenes.Game.ToString());
+        }
+
+        private void ChangeLanguageToRussian()
+        {
+            _languageChanger.SetLanguage(LanguageType.Russian);
+        }
+
+        private void ChangeLanguageToEnglish()
+        {
+            _languageChanger.SetLanguage(LanguageType.English);
+        }
     }
 }

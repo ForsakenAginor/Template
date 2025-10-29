@@ -1,4 +1,4 @@
-﻿namespace SaveSystem
+﻿namespace Assets.Source.Scripts.SaveSystem
 {
     public interface ISaveLoadService
     {

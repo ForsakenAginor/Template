@@ -1,7 +1,7 @@
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Localization
+namespace Assets.Source.Scripts.Localization
 {
     public class LocalisationThrower : MonoBehaviour
     {

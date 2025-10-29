@@ -1,59 +1,82 @@
-using AudioMixer;
-using General.UI;
-using System;
+using Assets.Source.Scripts.AudioLogic;
+using Assets.Source.Scripts.DI.Services.Boot;
+using Assets.Source.Scripts.DI.Services.Game;
+using Assets.Source.Scripts.General;
+using Assets.Source.Scripts.SaveSystem;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
 
-public class Root : MonoBehaviour
+namespace Assets.Source.Scripts.EntryPoint
 {
-    [Header("Other")]
-    [SerializeField] private SoundInitializer _soundInitializer;
-    [SerializeField] private Button _closeButton;
-    private ISceneChanger _sceneChanger;
-    private IMusicSource _musicSource;
-
-    [Inject]
-    public void Construct(ISceneChanger sceneChanger, IMusicSource musicSource)
+    public class Root : MonoBehaviour
     {
-        _sceneChanger = sceneChanger;
-        _musicSource = musicSource;
-    }
+        [Header("Other")]
+        [SerializeField] private AudioSaveLoadService _soundInitializer;
+        [SerializeField] private Button _closeButton;
+        private ISceneChanger _sceneChanger;
+        private SaveDataProvider _saveDataProvider;
+        private List<IDataSaveLoadService> _saveLoadServices = new();
+        private HealthVignetteEffect _healthVignette;
+        private NoiceVignetteEffect _noiceVignette;
 
-    private void Start()
-    {
-        InitAudioMixer();
+        [Inject]
+        public void Construct(ISceneChanger sceneChanger, SaveDataProvider saveDataProvider, HealthVignetteEffect healthVignette, NoiceVignetteEffect noiceVignette)
+        {
+            _sceneChanger = sceneChanger;
+            _saveDataProvider = saveDataProvider;
+            _healthVignette = healthVignette;
+            _noiceVignette = noiceVignette;
 
-        _closeButton.onClick.AddListener(OnCloseButtonClick);
-        _sceneChanger.FadeOut();
-    }
+            _healthVignette.Enable();
+            _noiceVignette.Enable();
+            _saveLoadServices.Add(_soundInitializer);
+        }
 
-    private void OnDestroy()
-    {
-        _closeButton.onClick.RemoveListener(OnCloseButtonClick);
-    }
+        private void Start()
+        {
+            LoadData();
 
-    private void OnCloseButtonClick()
-    {
-        _sceneChanger.LoadScene(Scenes.Menu.ToString());
-    }
+            _closeButton.onClick.AddListener(OnCloseButtonClick);
+            _sceneChanger.FadeOut();
+            Time.timeScale = 1f;
+        }
 
-    private void InitAudioMixer()
-    {
-        _soundInitializer.Init();
+        private void OnDestroy()
+        {
+            _healthVignette.Disable();
+            _noiceVignette.Disable();
+            _closeButton.onClick.RemoveListener(OnCloseButtonClick);
+        }
 
-        if (_musicSource.IsAdded == false)
-            _soundInitializer.AddMusicSource(_musicSource.Music);
-        else
-            _soundInitializer.AddMusicSourceWithoutVolumeChanging(_musicSource.Music);
+        private void SaveData()
+        {
+            foreach (var service in _saveLoadServices)
+            {
+                service.Save();
+            }
 
-    }
+            _saveDataProvider.Save();
+        }
 
-    private void AddAudioSourceToMixer(AudioSource audioSource)
-    {
-        if (audioSource == null)
-            throw new ArgumentNullException(nameof(audioSource));
+        private void LoadData()
+        {
+            foreach (var service in _saveLoadServices)
+            {
+                service.Init(_saveDataProvider.PlayerSavedData);
+            }
 
-        _soundInitializer.AddEffectSource(audioSource);
+            foreach (var service in _saveLoadServices)
+            {
+                service.Load();
+            }
+        }
+
+        private void OnCloseButtonClick()
+        {
+            SaveData();
+            _sceneChanger.LoadScene(Scenes.Menu.ToString());
+        }
     }
 }
