@@ -10,7 +10,7 @@ namespace Assets.Source.Scripts.DI.Services.Global
 
         public void StopCoroutine(Coroutine coroutine);
 
-        public CoroutineQueue StartCorotineQueue();
+        public CoroutineQueue CreateCorotineQueue();
     }
 
     public class ZenjectCoroutineRunner : ICoroutineRunner
@@ -26,10 +26,9 @@ namespace Assets.Source.Scripts.DI.Services.Global
 
         public void StopCoroutine(Coroutine coroutine) => _monoBehaviour.StopCoroutine(coroutine);
 
-        public CoroutineQueue StartCorotineQueue()
+        public CoroutineQueue CreateCorotineQueue()
         {
             CoroutineQueue queue = new(_monoBehaviour);
-            queue.StartLoop();
 
             return queue;
         }
@@ -48,11 +47,17 @@ namespace Assets.Source.Scripts.DI.Services.Global
 
         public void StartLoop()
         {
+            if (_internalCoroutine != null)
+                throw new System.InvalidOperationException("Coroutine queue already started");
+
             _internalCoroutine = _owner.StartCoroutine(Process());
         }
 
         public void StopLoop()
         {
+            if (_internalCoroutine == null)
+                throw new System.InvalidOperationException("Coroutine queue not started yet");
+
             _owner.StopCoroutine(_internalCoroutine);
             _internalCoroutine = null;
         }
