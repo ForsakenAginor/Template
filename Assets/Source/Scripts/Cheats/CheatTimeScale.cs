@@ -1,4 +1,7 @@
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Assets.Source.Scripts.Cheats
 {
@@ -10,6 +13,12 @@ namespace Assets.Source.Scripts.Cheats
         [SerializeField] private float _fastTimeScale = 5f;
 
         private State _state = State.Normal;
+
+        private void Awake()
+        {
+            // Initialize time scale to match the initial state
+            ApplyTimeScale();
+        }
 
         private void Update()
         {
@@ -30,6 +39,33 @@ namespace Assets.Source.Scripts.Cheats
             {
                 SetState(State.Fast);
             }
+            else if (Input.GetKeyDown(KeyCode.F5))
+            {
+                PausePlayMode();
+            }
+        }
+
+        private void PausePlayMode()
+        {
+#if UNITY_EDITOR
+            // Toggle Unity Editor Play Mode pause
+            UnityEditor.EditorApplication.isPaused = !UnityEditor.EditorApplication.isPaused;
+            Debug.Log($"Editor Play Mode {(UnityEditor.EditorApplication.isPaused ? "paused" : "resumed")}");
+#else
+            // In build, fallback to time scale control
+            if (Time.timeScale == 0f)
+            {
+                // If currently paused, resume to normal time scale
+                Time.timeScale = _normalTimeScale;
+                Debug.Log("Resume: TimeScale = " + Time.timeScale);
+            }
+            else
+            {
+                // If currently playing, pause the game
+                Time.timeScale = 0f;
+                Debug.Log("Paused: TimeScale = " + Time.timeScale);
+            }
+#endif
         }
 
         private void SetState(State newState)
@@ -62,7 +98,7 @@ namespace Assets.Source.Scripts.Cheats
         {
             Normal,
             Slow,
-            Fast,
+            Fast
         }
     }
 }
