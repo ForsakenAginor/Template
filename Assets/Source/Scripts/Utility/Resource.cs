@@ -1,28 +1,31 @@
 using System;
+using R3;
 
-namespace Assets.Source.Scripts.Utility
+namespace Source.Scripts.Utility
 {
-    public class Resource : IResource
+    public abstract class Resource : IResource
     {
-        private int _amount;
         private int _maximum;
+        private ReactiveProperty<int> _amount;
 
+        /// <summary>
+        /// Create Resource with "Maximum" equal to starting "amount" value
+        /// </summary>
+        /// <param name="amount"></param>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         public Resource(int amount)
         {
-            _amount = amount >= 0 ? amount : throw new ArgumentOutOfRangeException(nameof(amount));
+            _amount = amount >= 0 ? new(amount) : throw new ArgumentOutOfRangeException(nameof(amount));
             _maximum = amount;
         }
-
+        
         public Resource(int amount, int maximum = int.MaxValue)
         {
-            _amount = amount >= 0 ? amount : throw new ArgumentOutOfRangeException(nameof(amount));
+            _amount = amount >= 0 ? new() : throw new ArgumentOutOfRangeException(nameof(amount));
             _maximum = maximum >= amount ? maximum : throw new ArgumentOutOfRangeException(nameof(maximum));
         }
 
-        public event Action ResourcesAmountChanged;
-        public event Action ResourceOver;
-
-        public int Amount => _amount;
+        public Observable<int> ResourceAmount => _amount;
 
         public int Maximum => _maximum;
 
@@ -31,9 +34,8 @@ namespace Assets.Source.Scripts.Utility
             if (amount <= 0)
                 throw new ArgumentOutOfRangeException(nameof(amount));
 
-            int temp = _amount + amount;
-            _amount = Math.Min(_maximum, temp);
-            ResourcesAmountChanged?.Invoke();
+            int temp = _amount.Value + amount;
+            _amount.Value = Math.Min(_maximum, temp);
         }
 
         public bool TrySpent(int amount)
@@ -41,11 +43,10 @@ namespace Assets.Source.Scripts.Utility
             if (amount < 0)
                 throw new ArgumentOutOfRangeException(nameof(amount));
 
-            if (_amount < amount)
+            if (_amount.Value < amount)
                 return false;
 
-            _amount -= amount;
-            ResourcesAmountChanged?.Invoke();
+            _amount.Value -= amount;
             return true;
         }
 
@@ -54,14 +55,20 @@ namespace Assets.Source.Scripts.Utility
             if (amount < 0)
                 throw new ArgumentOutOfRangeException(nameof(amount));
 
-            _amount -= amount;
-            ResourcesAmountChanged?.Invoke();
+            int spent = Math.Min(_amount.Value, amount);
+            _amount.Value -= spent;
 
-            if (_amount <= 0)
+            if (_amount.Value == 0)
             {
-                _amount = 0;
-                ResourceOver?.Invoke();
+                DoOnResourceOver();
             }
         }
+
+        protected void CallResourceOver()
+        {
+            _amount.OnCompleted();
+        }
+
+        protected abstract void DoOnResourceOver();
     }
 }

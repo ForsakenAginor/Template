@@ -1,4 +1,4 @@
-﻿namespace Assets.Source.Scripts.Utility
+﻿namespace Source.Scripts.Utility
 {
     public interface ISwitchableElement
     {

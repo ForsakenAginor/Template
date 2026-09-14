@@ -1,8 +1,8 @@
-using Assets.Source.Scripts.Utility.Pools;
 using System;
+using Source.Scripts.Utility.Pools;
 using UnityEngine;
 
-namespace Assets.Source.Scripts.DI.Services.Game
+namespace Source.Scripts.DI.Services.Game
 {
     public interface IPoolFactory
     {

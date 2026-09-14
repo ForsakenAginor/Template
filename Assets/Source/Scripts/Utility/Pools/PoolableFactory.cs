@@ -1,7 +1,7 @@
 using UnityEngine;
 using Zenject;
 
-namespace Assets.Source.Scripts.Utility.Pools
+namespace Source.Scripts.Utility.Pools
 {
     public interface IPoolableFactory
     {

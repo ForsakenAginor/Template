@@ -1,4 +1,4 @@
-namespace Assets.Source.Scripts.General
+namespace Source.Scripts.General
 {
     public enum Scenes
     {

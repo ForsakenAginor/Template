@@ -1,19 +1,20 @@
-using Assets.Source.Scripts.Utility;
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace Assets.Source.Scripts.DI.Services.Game
+namespace Source.Scripts.DI.Services.Game
 {
     public class AudioPlayer : MonoBehaviour
     {
         [Header("Queue logic")]
         private readonly int _maxSimultaneousSounds = 10;
         private readonly Queue<AudioSource> _audioSources = new Queue<AudioSource>();
-        private readonly Dictionary<AudioSource, WaitWhileCached> _cachedWaitWhiles = new Dictionary<AudioSource, WaitWhileCached>();
+        //private readonly Dictionary<AudioSource, WaitWhileCached> _cachedWaitWhiles = new Dictionary<AudioSource, WaitWhileCached>();
         [SerializeField] private AudioSource[] _audioSourcesArray;
+        
+        
 
         private void Awake()
         {
@@ -23,7 +24,7 @@ namespace Assets.Source.Scripts.DI.Services.Game
             for (int i = 0; i < _maxSimultaneousSounds; i++)
             {
                 _audioSources.Enqueue(_audioSourcesArray[i]);
-                _cachedWaitWhiles.Add(_audioSourcesArray[i], new WaitWhileCached(() => false));
+                //_cachedWaitWhiles.Add(_audioSourcesArray[i], new WaitWhileCached(() => false));
             }
         }
 
@@ -44,13 +45,27 @@ namespace Assets.Source.Scripts.DI.Services.Game
                 source.volume = source.volume * volumeMultiplier;
 
             source.Play();
-            StartCoroutine(ReturnToPool(source, volumeMultiplier));
+            //StartCoroutine(ReturnToPool(source, volumeMultiplier));
+            ReturnToPoolAsync(source, volumeMultiplier);
         }
 
+        /*
         private IEnumerator ReturnToPool(AudioSource source, float volumeMultiplier)
         {
             _cachedWaitWhiles[source].UpdateCondition(() => source.isPlaying);
             yield return _cachedWaitWhiles[source];
+            source.pitch = 1f;
+            source.volume = source.volume / volumeMultiplier;
+            _audioSources.Enqueue(source);
+        }
+        */
+
+        private async UniTaskVoid ReturnToPoolAsync(AudioSource source, float volumeMultiplier)
+        {
+            while (source.isPlaying)
+            {
+                await UniTask.NextFrame(destroyCancellationToken);
+            }
             source.pitch = 1f;
             source.volume = source.volume / volumeMultiplier;
             _audioSources.Enqueue(source);

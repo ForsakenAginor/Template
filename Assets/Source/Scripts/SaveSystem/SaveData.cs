@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Assets.Source.Scripts.SaveSystem
+namespace Source.Scripts.SaveSystem
 {
     [Serializable]
     public class SaveData

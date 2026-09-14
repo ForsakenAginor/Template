@@ -1,12 +1,10 @@
-﻿using System;
+﻿using R3;
 
-namespace Assets.Source.Scripts.Utility
+namespace Source.Scripts.Utility
 {
     public interface IResource
     {
-        public event Action ResourcesAmountChanged;
-
-        public int Amount { get; }
+        public Observable<int> ResourceAmount { get; }
 
         public int Maximum { get; }
     }

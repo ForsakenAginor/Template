@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Assets.Source.Scripts.SaveSystem
+namespace Source.Scripts.SaveSystem
 {
     public class PlayerPrefsSaveLoadService : ISaveLoadService
     {

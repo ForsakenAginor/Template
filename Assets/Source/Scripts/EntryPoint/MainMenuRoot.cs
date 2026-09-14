@@ -1,14 +1,14 @@
-using Assets.Source.Scripts.AudioLogic;
-using Assets.Source.Scripts.DI.Services.Boot;
-using Assets.Source.Scripts.General;
-using Assets.Source.Scripts.Localization;
-using Assets.Source.Scripts.SaveSystem;
 using System.Collections.Generic;
+using Source.Scripts.AudioLogic;
+using Source.Scripts.DI.Services.Boot;
+using Source.Scripts.General;
+using Source.Scripts.Localization;
+using Source.Scripts.SaveSystem;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
 
-namespace Assets.Source.Scripts.EntryPoint
+namespace Source.Scripts.EntryPoint
 {
     public class MainMenuRoot : MonoBehaviour
     {

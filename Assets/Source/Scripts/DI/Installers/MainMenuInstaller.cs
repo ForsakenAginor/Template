@@ -1,8 +1,8 @@
-﻿using Assets.Source.Scripts.DI.Services.Global;
+﻿using Source.Scripts.DI.Services.Global;
 using UnityEngine;
 using Zenject;
 
-namespace Assets.Source.Scripts.DI.Installers
+namespace Source.Scripts.DI.Installers
 {
     public class MainMenuInstaller : MonoInstaller
     {

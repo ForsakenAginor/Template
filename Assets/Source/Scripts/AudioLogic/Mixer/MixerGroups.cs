@@ -1,4 +1,4 @@
-﻿namespace Assets.Source.Scripts.AudioLogic.Mixer
+﻿namespace Source.Scripts.AudioLogic.Mixer
 {
     public enum MixerGroups
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Assets.Source.Scripts.DI.Services.Global
+namespace Source.Scripts.DI.Services.Global
 {
     public interface ICoroutineRunner
     {

@@ -1,12 +1,12 @@
-﻿using Assets.Source.Scripts.DI.Services.Game;
-using Assets.Source.Scripts.DI.Services.Global;
-using Assets.Source.Scripts.Utility.Pools;
-using System;
+﻿using Source.Scripts.DI.Services.Game;
+using Source.Scripts.DI.Services.Game.FSE;
+using Source.Scripts.DI.Services.Global;
+using Source.Scripts.Utility.Pools;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using Zenject;
 
-namespace Assets.Source.Scripts.DI.Installers
+namespace Source.Scripts.DI.Installers
 {
     public class GameSceneInstaller : MonoInstaller
     {
@@ -27,12 +27,30 @@ namespace Assets.Source.Scripts.DI.Installers
             BindInstantiateWrapper();
             BindPoolFactory();
             BindCoroutineRunner();
+            BindTaskFactory();
             BindAudio();
             BindTimeIncrement();
             BindHealthVignetteEffect();
             BindNoiceVignetteEffect();
         }
 
+        private void BindTaskFactory()
+        {
+            TaskFactory factory = Container.InstantiateComponent<TaskFactory>(gameObject);
+
+            Container
+                .Bind<ISceneCancellationTokenProvider>()
+                .To<TaskFactory>()
+                .FromInstance(factory)
+                .AsSingle();
+            
+            Container
+                .Bind<ITaskFactory>()
+                .To<TaskFactory>()
+                .FromInstance(factory)
+                .AsSingle();
+        }
+        
         private void BindNoiceVignetteEffect()
         {
             NoiceVignetteEffect effect = new NoiceVignetteEffect(_noiceVignetteEffect, _noiceVignetteMaterial);

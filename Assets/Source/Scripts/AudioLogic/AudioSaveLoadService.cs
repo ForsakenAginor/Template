@@ -1,10 +1,10 @@
-using Assets.Source.Scripts.AudioLogic.Mixer;
-using Assets.Source.Scripts.SaveSystem;
+using Source.Scripts.AudioLogic.Mixer;
+using Source.Scripts.SaveSystem;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.UI;
 
-namespace Assets.Source.Scripts.AudioLogic
+namespace Source.Scripts.AudioLogic
 {
     public class AudioSaveLoadService : MonoBehaviour, IDataSaveLoadService
     {

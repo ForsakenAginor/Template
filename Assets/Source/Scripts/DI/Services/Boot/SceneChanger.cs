@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-namespace Assets.Source.Scripts.DI.Services.Boot
+namespace Source.Scripts.DI.Services.Boot
 {
     public interface ISceneChanger
     {

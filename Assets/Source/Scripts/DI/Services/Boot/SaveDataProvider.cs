@@ -1,7 +1,7 @@
-﻿using Assets.Source.Scripts.SaveSystem;
+﻿using Source.Scripts.SaveSystem;
 using Zenject;
 
-namespace Assets.Source.Scripts.DI.Services.Boot
+namespace Source.Scripts.DI.Services.Boot
 {
     public class SaveDataProvider
     {

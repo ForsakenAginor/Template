@@ -1,10 +1,10 @@
 using System.Collections;
-using Assets.Source.Scripts.General;
-using Assets.Source.Scripts.Localization;
+using Source.Scripts.General;
+using Source.Scripts.Localization;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Assets.Source.Scripts.EntryPoint
+namespace Source.Scripts.EntryPoint
 {
     public class BootsTrap : MonoBehaviour
     {

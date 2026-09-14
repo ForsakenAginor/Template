@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Assets.Source.Scripts.Utility.Pools
+namespace Source.Scripts.Utility.Pools
 {
     public abstract class Poolable : MonoBehaviour
     {

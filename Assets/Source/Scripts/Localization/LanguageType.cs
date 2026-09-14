@@ -1,4 +1,4 @@
-namespace Assets.Source.Scripts.Localization
+namespace Source.Scripts.Localization
 {
     public enum LanguageType
     {

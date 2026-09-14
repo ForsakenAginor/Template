@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-namespace Assets.Source.Scripts.SaveSystem
+namespace Source.Scripts.SaveSystem
 {
     public class DataSerializer<T>
     {

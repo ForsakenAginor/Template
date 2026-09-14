@@ -1,7 +1,7 @@
 using System;
 using UnityEngine.UI;
 
-namespace Assets.Source.Scripts.AudioLogic.Mixer
+namespace Source.Scripts.AudioLogic.Mixer
 {
     public class AudioSlider
     {

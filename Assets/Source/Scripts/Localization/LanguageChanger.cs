@@ -1,8 +1,8 @@
-using Assets.Source.Scripts.SaveSystem;
-using Lean.Localization;
 using System.Collections.Generic;
+using Lean.Localization;
+using Source.Scripts.SaveSystem;
 
-namespace Assets.Source.Scripts.Localization
+namespace Source.Scripts.Localization
 {
     public class LanguageChanger
     {

@@ -1,9 +1,10 @@
-﻿using Assets.Source.Scripts.DI.Services.Boot;
-using Assets.Source.Scripts.SaveSystem;
+﻿using Source.Scripts.DI.Services.Boot;
+using Source.Scripts.SaveSystem;
+using Source.Scripts.Utility.SeededRandom;
 using UnityEngine;
 using Zenject;
 
-namespace Assets.Source.Scripts.DI.Installers
+namespace Source.Scripts.DI.Installers
 {
     public class BootsTrapInstaller : MonoInstaller
     {
@@ -15,6 +16,19 @@ namespace Assets.Source.Scripts.DI.Installers
             InitSceneChanger();
             BindSaveLoadService();
             BindConfigurations();
+            BindSeededRandomSystem();
+        }
+
+        private void BindSeededRandomSystem()
+        {
+            GameRandomInitializer randomInitializer = new GameRandomInitializer();
+
+            Container
+                .Bind<IGameRandomInitializer>()
+                .To<GameRandomInitializer>()
+                .FromInstance(randomInitializer)
+                .AsSingle()
+                .NonLazy();
         }
 
         private void BindConfigurations()

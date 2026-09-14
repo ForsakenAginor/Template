@@ -1,8 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
-namespace Assets.Source.Scripts.DI.Services.Global
+namespace Source.Scripts.DI.Services.Global
 {
     public interface IMusicPlayer
     {
@@ -20,19 +21,19 @@ namespace Assets.Source.Scripts.DI.Services.Global
         [SerializeField] private AudioClip _bossFightClip;
         [SerializeField] private AudioClip[] _clips;
         [SerializeField] private AudioSource _source;
-
-        private Coroutine _musicQueue;
+        
+        private CancellationTokenSource _musicLoopCts;
         private bool _allClipsPreloaded = false;
         private float _volume;
 
         private void Awake()
         {
-            StartCoroutine(PreloadAllClips());
+            PreloadAllClipsAsync();
         }
 
         private void Start()
         {
-            StartCoroutine(StartMusicAfterPreload());
+            StartMusicAfterPreloadAsync();
         }
 
         public void Pause()
@@ -45,7 +46,7 @@ namespace Assets.Source.Scripts.DI.Services.Global
         {
             _source.volume = _volume;
         }
-
+        
         public void PlayBossFightMusic()
         {
             if (_bossFightClip == null)
@@ -53,45 +54,50 @@ namespace Assets.Source.Scripts.DI.Services.Global
                 Debug.Log("BossFight clip not assigned");
                 return;
             }
-
-            StopCoroutine(_musicQueue);
+            
+            _musicLoopCts?.Cancel();
+            _musicLoopCts?.Dispose();
+            _musicLoopCts = null;
+            
             _source.Stop();
             _source.clip = _bossFightClip;
             _source.loop = true;
             _source.Play();
         }
-
-        private IEnumerator PlayLoopMusic()
+        
+        private async UniTaskVoid StartMusicAfterPreloadAsync()
+        {
+            await UniTask.WaitUntil(() => _allClipsPreloaded, cancellationToken: destroyCancellationToken);
+            _musicLoopCts = CancellationTokenSource.CreateLinkedTokenSource(destroyCancellationToken);
+            PlayLoopMusicAsync(_musicLoopCts.Token);
+        }
+        
+        private async UniTaskVoid PlayLoopMusicAsync(CancellationToken token)
         {
             while (true)
             {
                 _source.clip = _clipQueue.Dequeue();
                 _source.Play();
                 _clipQueue.Enqueue(_source.clip);
-                yield return new WaitWhile(() => _source.isPlaying);
+                await UniTask.WaitWhile(() => _source.isPlaying, cancellationToken: token);
             }
         }
-
-        private IEnumerator StartMusicAfterPreload()
-        {
-            yield return new WaitUntil(() => _allClipsPreloaded);
-            _musicQueue = StartCoroutine(PlayLoopMusic());
-        }
-
-        private IEnumerator PreloadAllClips()
+        
+        private async UniTaskVoid PreloadAllClipsAsync()
         {
             foreach (var clip in _clips)
             {
                 clip.LoadAudioData();
                 while (clip.loadState != AudioDataLoadState.Loaded)
-                    yield return null;
+                    await UniTask.NextFrame(destroyCancellationToken);
             }
 
             if (_bossFightClip != null)
             {
                 _bossFightClip.LoadAudioData();
+                
                 while (_bossFightClip.loadState != AudioDataLoadState.Loaded)
-                    yield return null;
+                    await UniTask.NextFrame(destroyCancellationToken);
             }
 
             foreach (var clip in _clips)

@@ -1,9 +1,9 @@
-using Assets.Source.Scripts.DI.Services.Game;
 using Sirenix.OdinInspector;
+using Source.Scripts.DI.Services.Game.FSE;
 using UnityEngine;
 using Zenject;
 
-namespace Assets.Source.Scripts.Cheats
+namespace Source.Scripts.Cheats
 {
     public class CheatsPanel : MonoBehaviour
     {

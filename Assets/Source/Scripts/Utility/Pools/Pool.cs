@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.Pool;
 
-namespace Assets.Source.Scripts.Utility.Pools
+namespace Source.Scripts.Utility.Pools
 {
     public class Pool<T> where T : Poolable
     {

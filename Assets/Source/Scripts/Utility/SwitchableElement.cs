@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Assets.Source.Scripts.Utility
+namespace Source.Scripts.Utility
 {
     public class SwitchableElement : MonoBehaviour, ISwitchableElement
     {

@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Assets.Source.Scripts.DI.Services.Game
+namespace Source.Scripts.DI.Services.Game
 {
     public interface IGameTimeService
     {
